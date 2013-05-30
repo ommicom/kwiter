@@ -34,7 +34,8 @@ def main():
         return 1
 
     logger_name = sett.log_settings.get('name', 'kwiter')
-    log_level = LOG_LEVEL[sett.log_settings.get('level').upper()] if sett.log_settings.get('level').upper() in LOG_LEVEL.keys() else LOG_LEVEL['ERROR']
+    log_level = LOG_LEVEL[sett.log_settings.get('level').upper()] \
+        if sett.log_settings.get('level').upper() in LOG_LEVEL.keys() else LOG_LEVEL['ERROR']
     try:
         log_out = {'FILE':logging.FileHandler('.'.join((logger_name, 'log'))),
                    'CON':logging.StreamHandler(sys.stdout)}[sett.log_settings.get('out', 'FILE').upper()]
@@ -51,12 +52,15 @@ def main():
     except AttributeError:
         cycle = 60
 
-    scaner = KwiterScaner()
-    jober = KwiterJober()
-    tm = Timer(scaner.scan, cycle)
-    tm.start()
+    if len(sett.scan_settings) > 0:
+        scaner = KwiterScaner(sett.scan_settings)
+        jober = KwiterJober()
+        scaner.subscribe(jober)
+        tm = Timer(scaner.scan, cycle)
+        tm.start()
+    else:
+        logger.warning('Scan list is empty')
 
-    scaner.subscribe(jober)
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -2,11 +2,14 @@ __author__ = 'omic'
 __version__ = '0.0.2'
 
 import sys
+import os
 import argparse
 import logging
-import settings
+from glob import glob
 from kwitter import KwiterJober, KwiterScaner
 from mtimer import Timer
+
+sys.path.append(os.path.join(os.getcwd(), 'mod'))
 
 #LOG_HANDLER = {'FILE': logging.FileHandler(flog_name), 'CON': logging.StreamHandler(sys.stdout),
 #               'TMROTATE': logging.handlers.TimedRotatingFileHandler(flog_name, when='midnight'),
@@ -15,6 +18,15 @@ LOG_FORMAT = logging.Formatter('%(asctime)s\t%(levelname)s\t%(lineno)d\t%(messag
 # LOG_HANDLER = {'FILE':logging.FileHandler(args.log_file),'CON':logging.StreamHandler(sys.stdout)}
 LOG_LEVEL = {'DEBUG':logging.DEBUG,'INFO':logging.INFO,'WARNING':logging.WARNING,'ERROR':logging.ERROR,'CRITICAL':logging.CRITICAL,
              'NOTSET':logging.NOTSET}
+MODULES = {}
+
+def load_mod():
+    os.chdir(os.path.join(os.getcwd(), 'mod'))
+    print(os.getcwd())
+    for mod in glob(os.path.join(os.getcwd(), 'mod_*.py')):
+        MODULES[mod] = __import__(mod.split('.')[0])
+        #MODULES[mod] = __import__(mod)
+
 
 
 def main():
@@ -52,12 +64,14 @@ def main():
     except AttributeError:
         cycle = 60
 
+    MODULES = load_mod()
+
     if len(sett.scan_settings) > 0:
         scaner = KwiterScaner(sett.scan_settings)
         jober = KwiterJober()
         scaner.subscribe(jober)
         tm = Timer(scaner.scan, cycle)
-        tm.start()
+        #tm.start()
     else:
         logger.warning('Scan list is empty')
 

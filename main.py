@@ -11,25 +11,34 @@ from mtimer import Timer
 
 sys.path.append(os.path.join(os.getcwd(), 'mod'))
 
-#LOG_HANDLER = {'FILE': logging.FileHandler(flog_name), 'CON': logging.StreamHandler(sys.stdout),
-#               'TMROTATE': logging.handlers.TimedRotatingFileHandler(flog_name, when='midnight'),
-#               'SZROTATE': logging.handlers.RotatingFileHandler(flog_name, maxBytes=1024)}
 LOG_FORMAT = logging.Formatter('%(asctime)s\t%(levelname)s\t%(lineno)d\t%(message)s')
-# LOG_HANDLER = {'FILE':logging.FileHandler(args.log_file),'CON':logging.StreamHandler(sys.stdout)}
 LOG_LEVEL = {'DEBUG':logging.DEBUG,'INFO':logging.INFO,'WARNING':logging.WARNING,'ERROR':logging.ERROR,'CRITICAL':logging.CRITICAL,
              'NOTSET':logging.NOTSET}
 MODULES = {}
+#LOGGER = None
 
-def load_mod():
-    os.chdir(os.path.join(os.getcwd(), 'mod'))
-    print(os.getcwd())
-    for mod in glob(os.path.join(os.getcwd(), 'mod_*.py')):
-        MODULES[mod] = __import__(mod.split('.')[0])
-        #MODULES[mod] = __import__(mod)
-
-
+# def load_mod():
+#     os.chdir(os.path.join(os.getcwd(), 'mod'))
+#     for mod in glob('mod_*.py'):
+#         mod_name = mod.split('.')[0]
+#         try:
+#             MODULES[mod_name] = __import__(mod_name)
+#         except ImportError:
+#             LOGGER.exception('Module %s not load' % mod)
+#             return False
 
 def main():
+    def load_mod():
+        os.chdir(os.path.join(os.getcwd(), 'mod'))
+        for mod in glob('mod_*.py'):
+            mod_name = mod.split('.')[0]
+            try:
+                MODULES[mod_name] = __import__(mod_name)
+            except ImportError:
+                logger.exception('Module %s not load' % mod)
+            except ImportWarning:
+                logger.warning('Module %s load with warning(s)' % mod)
+
     parser = argparse.ArgumentParser(prog='kwiter', usage='%(prog)s [options]')
     parser.add_argument('-v', '--version', action='version', help='print version', version='kwiter %s' % __version__)
     parser.add_argument('-s', '--settings', action='store', default='settings', help='define settings name')
@@ -64,7 +73,9 @@ def main():
     except AttributeError:
         cycle = 60
 
-    MODULES = load_mod()
+    load_mod()
+    logger.info('Load module(s): %s ' % ' '.join(MODULES.keys()))
+    logger.info(sett.scan_settings)
 
     if len(sett.scan_settings) > 0:
         scaner = KwiterScaner(sett.scan_settings)

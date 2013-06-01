@@ -15,30 +15,8 @@ LOG_FORMAT = logging.Formatter('%(asctime)s\t%(levelname)s\t%(lineno)d\t%(messag
 LOG_LEVEL = {'DEBUG':logging.DEBUG,'INFO':logging.INFO,'WARNING':logging.WARNING,'ERROR':logging.ERROR,'CRITICAL':logging.CRITICAL,
              'NOTSET':logging.NOTSET}
 MODULES = {}
-#LOGGER = None
-
-# def load_mod():
-#     os.chdir(os.path.join(os.getcwd(), 'mod'))
-#     for mod in glob('mod_*.py'):
-#         mod_name = mod.split('.')[0]
-#         try:
-#             MODULES[mod_name] = __import__(mod_name)
-#         except ImportError:
-#             LOGGER.exception('Module %s not load' % mod)
-#             return False
 
 def main():
-    def load_mod():
-        os.chdir(os.path.join(os.getcwd(), 'mod'))
-        for mod in glob('mod_*.py'):
-            mod_name = mod.split('.')[0]
-            try:
-                MODULES[mod_name] = __import__(mod_name)
-            except ImportError:
-                logger.exception('Module %s not load' % mod)
-            except ImportWarning:
-                logger.warning('Module %s load with warning(s)' % mod)
-
     parser = argparse.ArgumentParser(prog='kwiter', usage='%(prog)s [options]')
     parser.add_argument('-v', '--version', action='version', help='print version', version='kwiter %s' % __version__)
     parser.add_argument('-s', '--settings', action='store', default='settings', help='define settings name')
@@ -73,18 +51,24 @@ def main():
     except AttributeError:
         cycle = 60
 
-    load_mod()
+    os.chdir(os.path.join(os.getcwd(), 'mod'))
+    for mod in glob('mod_*.py'):
+        mod_name = mod.split('.')[0]
+        try:
+            MODULES[mod_name] = __import__(mod_name)
+        except ImportError:
+            logger.exception('Module %s not load' % mod)
+        except ImportWarning:
+            logger.warning('Module %s load with warning(s)' % mod)
+
     logger.info('Load module(s): %s ' % ' '.join(MODULES.keys()))
     logger.info(sett.scan_settings)
 
-    if len(sett.scan_settings) > 0:
-        scaner = KwiterScaner(sett.scan_settings)
-        jober = KwiterJober()
-        scaner.subscribe(jober)
-        tm = Timer(scaner.scan, cycle)
-        #tm.start()
-    else:
-        logger.warning('Scan list is empty')
+    scaner = KwiterScaner(sett.scan_settings)
+    jober = KwiterJober()
+    scaner.subscribe(jober)
+    tm = Timer(scaner.scan, cycle)
+    tm.start()
 
 
 if __name__ == '__main__':

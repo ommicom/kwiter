@@ -14,7 +14,7 @@ sys.path.append(os.path.join(os.getcwd(), 'mod'))
 LOG_FORMAT = logging.Formatter('%(asctime)s\t%(levelname)s\t%(lineno)d\t%(message)s')
 LOG_LEVEL = {'DEBUG':logging.DEBUG,'INFO':logging.INFO,'WARNING':logging.WARNING,'ERROR':logging.ERROR,'CRITICAL':logging.CRITICAL,
              'NOTSET':logging.NOTSET}
-MODULES = {}
+#MODULES = {}
 
 def main():
     parser = argparse.ArgumentParser(prog='kwiter', usage='%(prog)s [options]')
@@ -51,6 +51,7 @@ def main():
     except AttributeError:
         cycle = 60
 
+    MODULES = {}
     os.chdir(os.path.join(os.getcwd(), 'mod'))
     for mod in glob('mod_*.py'):
         mod_name = mod.split('.')[0]
@@ -62,10 +63,9 @@ def main():
             logger.warning('Module %s load with warning(s)' % mod)
 
     logger.info('Load module(s): %s ' % ' '.join(MODULES.keys()))
-    logger.info(sett.scan_settings)
 
-    scaner = KwiterScaner(sett.scan_settings)
-    jober = KwiterJober()
+    scaner = KwiterScaner(sett.scan_settings, logger_name)
+    jober = KwiterJober(MODULES, logger_name)
     scaner.subscribe(jober)
     tm = Timer(scaner.scan, cycle)
     tm.start()

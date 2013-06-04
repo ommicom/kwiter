@@ -1,5 +1,5 @@
 __author__ = 'ommicom'
 
-source_dir = 't:\\'
-result_dir = 't:\\'
-mask = 'kwt*.txt'
+reestr_dir = 't:\\kwt\\'
+post_dir = 't:\\kwt\\'
+db = {'mode':True, 'name':'t:\\kwt\kwt.sqlite'}

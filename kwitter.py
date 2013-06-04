@@ -16,7 +16,7 @@ class KwiterScaner(Publisher):
         files = list()
         for scan_job in self.__scan_list:
             for mask in scan_job['mask']:
-                files.extend([os.path.join(scan_job['scan_dir'], files) for files in os.listdir(scan_job['scan_dir']) if re.findall(mask, files)])
+                files.extend([os.path.join(scan_job['scan_dir'], files) for files in os.listdir(scan_job['scan_dir']) if re.findall(mask, files, re.I)])
 
             self.notify({'files':files, 'actor':scan_job['actor']})
 

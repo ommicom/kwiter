@@ -17,8 +17,8 @@ class KwiterScaner(Publisher):
         for scan_job in self.__scan_list:
             for mask in scan_job['mask']:
                 files.extend([os.path.join(scan_job['scan_dir'], files) for files in os.listdir(scan_job['scan_dir']) if re.findall(mask, files, re.I)])
-
-            self.notify({'files':files, 'actor':scan_job['actor']})
+            if files:
+                self.notify({'files':files, 'actor':scan_job['actor']})
 
 
 class KwiterJober(Subscriber):
@@ -40,6 +40,7 @@ class KwiterJober(Subscriber):
             module_result = None
             for actor in jobs['actor']:
                 try:
+                    self.__logger.info('Process for file(s): %s module result: %s actor: %s' % (files, module_result, actor))
                     files, module_result = self.__modules[actor].run(files, module_result)
                 except KeyError:
                     self.__logger.error('Try load not define module %s' % jobs['actor'])

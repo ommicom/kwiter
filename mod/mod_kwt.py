@@ -11,26 +11,12 @@ def db_reestr(inf_row):
     con = sqlite3.connect(db_name, check_same_thread=False)
     try:
         cur = con.cursor()
-        # for row in inf_row:
-        #     cur.execute('INSERT INTO reestr (kwt, mes, kwt_res, kwt_dt, kwt_tm) VALUES (?, ?, ?, ?, ?)', row)
-        #     cur.execute()
         cur.executemany('INSERT INTO reestr (kwt, mes, kwt_res, kwt_dt, kwt_tm) VALUES (?, ?, ?, ?, ?)', inf_row)
         con.commit()
     except sqlite3.OperationalError as err:
         print(err)
     finally:
         con.close()
-    # print(inf_row)
-
-    # con = sqlite3.connect(db_name, check_same_thread=False)
-    # try:
-    #     cur = con.cursor()
-    #     cur.execute('INSERT INTO reestr(kwt, result, kwt_dt, kwt_tm) VALUES(?, ?, ?, ?)', (inf_row[0].replace('\n',''), inf_row[1].replace('\n',''), inf_row[2].replace('\n',''), inf_row[3].replace('\n','')))
-    #     con.commit()
-    # except sqlite3.OperationalError:
-    #     con.execute('CREATE TABLE "main"."reestr" ("id_kwt" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL, "kwt" CHAR NOT NULL, "result" CHAR NOT NULL, "kwt_dt" CHAR NOT NULL,'
-    #                 '"kwt_tm" CHARE NOT NULL, "dt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)')
-    # con.close()
 
 def run(files, mod_result=None):
     try:
